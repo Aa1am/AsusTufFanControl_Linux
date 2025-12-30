@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ui/Main.qml</file>
+        <file>ui/StatsCard.qml</file>
+        <file>ui/CircularGauge.qml</file>
+        <file>ui/GraphCard.qml</file>
+        <file>ui/app_icon.png</file>
+        <file>ui/components/Sidebar.qml</file>
+        <file>ui/pages/DashboardPage.qml</file>
+        <file>ui/pages/FanPage.qml</file>
+        <file>ui/pages/BatteryPage.qml</file>
+        <file>ui/pages/AuraPage.qml</file>
+    </qresource>
+</RCC>
