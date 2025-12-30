@@ -48,9 +48,14 @@ It works flawlessly on all major distributions including **Ubuntu**, **Fedora**,
     *   Color selection and brightness control.
     *   Multi-zone support.
 
+
 *   **System Performance**
     *   **Dashboard:** Comprehensive overview of CPU/GPU temperatures and utilization.
     *   **Performance Modes:** Toggle between Silent, Balanced, and Turbo power profiles.
+    *   **Smart Storage:**
+        *   **Universal Compatibility:** Works on any Linux PC (not just ASUS).
+        *   **MTP Support:** Plug-and-play detection for Android phones and cameras.
+        *   **Double-Click to Open:** Seamlessly mount and open password-protected drives directly from the app.
 
 *   **Premium UI**
     *   Modern, Glassmorphic design using Qt6/QML.

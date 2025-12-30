@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
         src/FanController.h
         src/SystemStatsMonitor.cpp
         src/SystemStatsMonitor.h
+        src/MtpWorker.cpp
+        src/MtpWorker.h
         src/AuraController.cpp
         src/AuraController.h
         resources.qrc

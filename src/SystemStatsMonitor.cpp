@@ -1,4 +1,7 @@
+#include <QDesktopServices>
+#include <QUrl>
 #include "SystemStatsMonitor.h"
+#include <QSet>
 
 SystemStatsMonitor::SystemStatsMonitor(QObject *parent) : QObject(parent)
 {
@@ -12,6 +15,22 @@ SystemStatsMonitor::SystemStatsMonitor(QObject *parent) : QObject(parent)
     m_enforcementTimer->setInterval(5000); 
     connect(m_enforcementTimer, &QTimer::timeout, this, &SystemStatsMonitor::enforceChargeLimit);
     m_enforcementTimer->start();
+    
+
+
+
+
+    // MTP Worker Thread (Background)
+    m_mtpThread = new QThread(this);
+    m_mtpWorker = new MtpWorker();
+    m_mtpWorker->moveToThread(m_mtpThread);
+    
+    connect(m_mtpThread, &QThread::started, m_mtpWorker, &MtpWorker::start);
+    connect(m_mtpWorker, &MtpWorker::devicesFound, this, &SystemStatsMonitor::onMtpDevicesFound);
+    // Cleanup worker on thread finish
+    connect(m_mtpThread, &QThread::finished, m_mtpWorker, &QObject::deleteLater);
+    
+    m_mtpThread->start();
     
     // Initial read
     readSystemInfo();
@@ -33,6 +52,14 @@ SystemStatsMonitor::SystemStatsMonitor(QObject *parent) : QObject(parent)
     }
     
     updateStats();
+}
+
+SystemStatsMonitor::~SystemStatsMonitor()
+{
+    if (m_mtpThread) {
+        m_mtpThread->quit();
+        m_mtpThread->wait();
+    }
 }
 
 #include <sys/statvfs.h>
@@ -150,7 +177,7 @@ void SystemStatsMonitor::readDiskUsage()
 {
     QProcess lsblk;
     // Added PARTLABEL
-    lsblk.start("lsblk", QStringList() << "-P" << "-b" << "-o" << "NAME,LABEL,PARTLABEL,MOUNTPOINT,FSTYPE,SIZE,TYPE,FSUSE%,FSAVAIL");
+    lsblk.start("lsblk", QStringList() << "-P" << "-b" << "-o" << "NAME,LABEL,PARTLABEL,MOUNTPOINT,FSTYPE,SIZE,TYPE,FSUSE%,FSAVAIL,PATH");
     
     if (!lsblk.waitForFinished(1500)) {
         return; 
@@ -172,21 +199,36 @@ void SystemStatsMonitor::readDiskUsage()
             props[match.captured(1)] = match.captured(2);
         }
         
-        if (props["TYPE"] != "part") continue; 
+        QString fstype = props["FSTYPE"];
+        
+        // Filter logic
+        if (props["TYPE"] != "part" && props["TYPE"] != "disk") continue; // Allow parts and whole disks (USB)
+        if (fstype == "swap") continue; // Explicitly ignore SWAP
         
         QString mp = props["MOUNTPOINT"];
+        if (mp == "[SWAP]") continue;   // Extra safety for SWAP
         if (mp.startsWith("/snap") || mp.startsWith("/run/snap") || mp.startsWith("/boot")) continue; 
         
         QString label = props["LABEL"];
         QString partLabel = props["PARTLABEL"];
         QString name = props["NAME"];
-        QString fstype = props["FSTYPE"];
+        
         double sizeBytes = props["SIZE"].toDouble();
         
-        if (sizeBytes < 1024.0 * 1024.0 * 1024.0) continue; 
+        // Lower threshold to 100MB to support small USB drives
+        if (sizeBytes < 100.0 * 1000.0 * 1000.0) continue;
         
-        double sizeGB = sizeBytes / (1024.0 * 1024.0 * 1024.0);
+        // Lower threshold to 100MB to support small USB drives
+        if (sizeBytes < 100.0 * 1000.0 * 1000.0) continue;
+        
+        // Hide raw unmounted disks (reduces duplicates like "1000.2 GB Local Disk" vs its partitions)
+        // We allow TYPE="disk" ONLY if it is mounted (for whole-disk USB drives)
+        if (props["TYPE"] == "disk" && mp.isEmpty()) continue;
+
+        double sizeGB = sizeBytes / (1000.0 * 1000.0 * 1000.0);
         bool isMounted = !mp.isEmpty();
+        
+        // ... (rest of logic) ...
         bool hasUsage = !props["FSAVAIL"].isEmpty(); // FSAVAIL is the source of truth for free space
         
         double freeBytes = 0;
@@ -199,8 +241,8 @@ void SystemStatsMonitor::readDiskUsage()
             if (sizeBytes > 0) usagePercent = (usedBytes / sizeBytes) * 100.0;
         }
         
-        double freeGB = freeBytes / (1024.0 * 1024.0 * 1024.0);
-        double usedGB = usedBytes / (1024.0 * 1024.0 * 1024.0);
+        double freeGB = freeBytes / (1000.0 * 1000.0 * 1000.0);
+        double usedGB = usedBytes / (1000.0 * 1000.0 * 1000.0);
         double freePercent = (sizeGB > 0) ? (freeGB / sizeGB) * 100.0 : 0; // Usage of Free for %
         
         // Name Logic: Label > PartLabel (filtered) > Username(Root) > Pretty Mount > Basename
@@ -236,6 +278,7 @@ void SystemStatsMonitor::readDiskUsage()
         
         QVariantMap p;
         p["name"] = displayName;
+        p["device"] = props["PATH"];
         p["mount"] = mp;
         p["fsType"] = fstype;
         p["total"] = QString::number(sizeGB, 'f', 1);
@@ -254,6 +297,16 @@ void SystemStatsMonitor::readDiskUsage()
         }
     }
     
+    // Append cached MTP devices
+    for (const QVariant &v : m_cachedMtpDevices) {
+        QVariantMap p = v.toMap();
+        newPartitions.append(p);
+        
+        // Add to totals
+        totalAll += p["total"].toDouble();
+        usedAll += p["used"].toDouble();
+    }
+    
     m_diskPartitions = newPartitions;
     
     m_diskTotal = totalAll;
@@ -264,6 +317,13 @@ void SystemStatsMonitor::readDiskUsage()
     } else {
         m_diskUsage = 0;
     }
+}
+
+void SystemStatsMonitor::onMtpDevicesFound(QVariantList devices)
+{
+    m_cachedMtpDevices = devices;
+    // Trigger update immediately to show new devices
+    updateStats();
 }
 
 void SystemStatsMonitor::readNetworkUsage()
@@ -511,4 +571,77 @@ void SystemStatsMonitor::enforceChargeLimit() {
             // qDebug() << "Enforcement: Re-applied limit of" << m_chargeLimit << "was" << currentKernelLimit;
         }
     }
+}
+
+void SystemStatsMonitor::openFileManager(const QString &mountPoint, const QString &deviceNode)
+{
+    // Determine the actual user
+    QString user = qgetenv("SUDO_USER");
+    if (user.isEmpty()) user = qgetenv("USER");
+    
+    // CASE 1: Drive IS mounted (or MTP)
+    if (!mountPoint.isEmpty()) {
+        if (user == "root" || user.isEmpty()) { 
+             // We are root, but no SUDO_USER? Just try opening as root.
+             QUrl url;
+             if (mountPoint.contains("://")) url = QUrl(mountPoint);
+             else url = QUrl::fromLocalFile(mountPoint);
+             QDesktopServices::openUrl(url);
+             return;
+        }
+    }
+    
+    // CASE 2: Drive is NOT mounted. We must mount it.
+    bool attemptingMount = mountPoint.isEmpty();
+    if (attemptingMount && deviceNode.isEmpty()) return;
+
+    // Common Env Setup for runuser
+    QProcess idProc;
+    idProc.start("id", QStringList() << "-u" << user);
+    idProc.waitForFinished();
+    QString uid = idProc.readAllStandardOutput().trimmed();
+    if (uid.isEmpty()) return;
+
+    // Build critical environment variables for GUI apps
+    QStringList envVars;
+    envVars << QString("DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%1/bus").arg(uid);
+    envVars << QString("XDG_RUNTIME_DIR=/run/user/%1").arg(uid);
+    
+    // Try to preserve/guess Display vars
+    QString display = qgetenv("DISPLAY");
+    if (display.isEmpty()) display = ":0";
+    envVars << QString("DISPLAY=%1").arg(display);
+    
+    QString wayland = qgetenv("WAYLAND_DISPLAY");
+    if (!wayland.isEmpty()) envVars << QString("WAYLAND_DISPLAY=%1").arg(wayland);
+    
+    QString xauth = qgetenv("XAUTHORITY");
+    if (xauth.isEmpty()) {
+        // Fallback guess for common locations
+        QString home = QString("/home/%1").arg(user);
+        if (QFile::exists(home + "/.Xauthority")) xauth = home + "/.Xauthority";
+        else if (QFile::exists(QString("/run/user/%1/gdm/Xauthority").arg(uid))) xauth = QString("/run/user/%1/gdm/Xauthority").arg(uid);
+    }
+    if (!xauth.isEmpty()) envVars << QString("XAUTHORITY=%1").arg(xauth);
+
+    if (attemptingMount) {
+        // Try to mount using gio (triggers GUI password prompt)
+        
+        QStringList args;
+        args << "-u" << user << "--" << "env";
+        args.append(envVars);
+        args << "gio" << "mount" << "-d" << deviceNode;
+             
+        // Use startDetached to avoid "Destroyed while process is still running"
+        QProcess::startDetached("runuser", args);
+        return;
+    }
+
+    // CASE 3: Opening an existing mount
+    QStringList args;
+    args << "-u" << user << "--" << "env";
+    args.append(envVars);
+    args << "xdg-open" << mountPoint;
+
+    QProcess::startDetached("runuser", args);
 }

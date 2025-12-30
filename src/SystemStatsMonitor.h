@@ -15,6 +15,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariantMap>
+#include <QThread>
+#include "MtpWorker.h"
 
 class SystemStatsMonitor : public QObject
 {
@@ -42,6 +44,7 @@ class SystemStatsMonitor : public QObject
 
 public:
     explicit SystemStatsMonitor(QObject *parent = nullptr);
+    ~SystemStatsMonitor();
     
     double cpuFreq() const { return m_cpuFreq; }
     double memoryUsage() const { return m_memoryUsage; }
@@ -67,6 +70,8 @@ public:
 public slots:
     void updateStats();
     void setChargeLimit(int limit);
+    void openFileManager(const QString &mountPoint, const QString &deviceNode = QString());
+    void onMtpDevicesFound(QVariantList devices);
 
 signals:
     void statsChanged();
@@ -113,6 +118,10 @@ private:
     void readCpuUsage();
     void readGpuStats();
     void readDiskUsage();
+    
+    QThread *m_mtpThread;
+    MtpWorker *m_mtpWorker;
+    QVariantList m_cachedMtpDevices;
 
     void readNetworkUsage();
 

@@ -336,7 +336,14 @@ Item {
                             Behavior on border.width { NumberAnimation { duration: 150 } }
                             Behavior on border.color { ColorAnimation { duration: 150 } }
                             
-                            MouseArea { id: driveHover; anchors.fill: parent; hoverEnabled: true }
+                            MouseArea { 
+                                id: driveHover
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: { /* Single click does nothing now, helps selection feel */ }
+                                onDoubleClicked: monitor.openFileManager(modelData.mount, modelData.device)
+                            }
                             
                             RowLayout {
                                 anchors.fill: parent
