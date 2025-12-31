@@ -485,7 +485,7 @@ int SystemStatsMonitor::readChargeLimit() {
 }
 
 void SystemStatsMonitor::setChargeLimit(int limit) {
-    if (limit < 20) limit = 20; 
+    if (limit < 60) limit = 60; 
     if (limit > 100) limit = 100;
 
     // Debounce Logic:
@@ -504,7 +504,7 @@ void SystemStatsMonitor::setChargeLimit(int limit) {
 
 void SystemStatsMonitor::applyPendingChargeLimit() {
     int limit = m_pendingChargeLimit;
-    if (limit < 20 || limit > 100) return;
+    if (limit < 60 || limit > 100) return;
 
     // Path to battery threshold file
     QString batPath = "/sys/class/power_supply/BAT1/charge_control_end_threshold";
