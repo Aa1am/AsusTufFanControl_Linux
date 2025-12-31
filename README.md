@@ -1,6 +1,8 @@
+<div align="center">
+
 # 🎮 ASUS TUF Fan Control
 
-<div align="center">
+
 
 ![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![Language](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)
