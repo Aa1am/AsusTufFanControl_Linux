@@ -7,6 +7,7 @@
 #include "src/FanController.h"
 #include "src/SystemStatsMonitor.h"
 #include "src/AuraController.h"
+#include "src/FanCurveController.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<FanController>("AsusTufFanControl", 1, 0, "FanController");
     qmlRegisterType<SystemStatsMonitor>("AsusTufFanControl", 1, 0, "SystemStatsMonitor");
     qmlRegisterType<AuraController>("AsusTufFanControl", 1, 0, "AuraController");
+    qmlRegisterType<FanCurveController>("AsusTufFanControl", 1, 0, "FanCurveController");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/ui/Main.qml"));
