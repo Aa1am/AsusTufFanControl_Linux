@@ -9,9 +9,53 @@
 #include "src/AuraController.h"
 #include "src/FanCurveController.h"
 
+#include <stdio.h>
+
+// Security Fix: Custom Message Handler
+// Protects against Information Disclosure by suppressing debug logs in Release builds
+void secureMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    // In Release builds (when QT_DEBUG is NOT defined), suppress Debug and Info messages
+    // This prevents leaking system paths, arguments, and hardware details to stdout
+#ifndef QT_DEBUG
+    if (type == QtDebugMsg || type == QtInfoMsg) {
+        return;
+    }
+#endif
+
+    // Default formatting for allowed messages
+    QByteArray localMsg = msg.toLocal8Bit();
+    const char *file = context.file ? context.file : "";
+    
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Debug: %s\n", localMsg.constData());
+        break;
+    case QtInfoMsg:
+        fprintf(stderr, "Info: %s\n", localMsg.constData());
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: %s\n", localMsg.constData());
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s (%s:%u)\n", localMsg.constData(), file, context.line);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s (%s:%u)\n", localMsg.constData(), file, context.line);
+        abort();
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    // Install Security Handler
+    qInstallMessageHandler(secureMessageHandler);
+
     QGuiApplication app(argc, argv);
+    
+    // Fix: Set Identity for consistent QSettings location
+    app.setOrganizationName("AsusTuf");
+    app.setApplicationName("FanControl");
 
     // --- DEBUG CHECK ---
     QPixmap testLoad(":/ui/app_icon.png");
