@@ -18,7 +18,7 @@ if ! [[ "$LIMIT" =~ ^[0-9]+$ ]]; then
 fi
 
 # Clamp logic
-if [ "$LIMIT" -lt 40 ]; then LIMIT=40; fi
+if [ "$LIMIT" -lt 60 ]; then LIMIT=60; fi
 if [ "$LIMIT" -gt 100 ]; then LIMIT=100; fi
 
 echo "Applying Battery Limit: $LIMIT%"
