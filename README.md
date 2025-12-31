@@ -45,9 +45,25 @@
 
 ### 🌀 Fan Control
 - Real-time RPM monitoring for CPU & GPU fans
-- **Silent / Balanced / Turbo** performance modes
+- **Manual Mode:** Silent / Balanced / Turbo performance modes
+- **Auto Fan Curve:** Temperature-based automatic mode switching
 - Visual animated fan indicators
 - Automatic thermal management via ACPI/WMI
+
+### 🎛️ Auto Fan Curve (NEW)
+Intelligent temperature-based fan management that automatically switches between modes:
+
+| Mode | Condition | Use Case |
+|------|-----------|----------|
+| **Silent** | CPU < Silent Threshold | Light tasks, quiet environment |
+| **Balanced** | Between thresholds | Normal usage, web browsing |
+| **Turbo** | CPU > Turbo Threshold | Gaming, heavy workloads |
+
+**Built-in Presets:**
+- 🎮 **Gaming** – Silent ≤40°C, Turbo ≥60°C (aggressive cooling)
+- ⚖️ **Balanced** – Silent ≤50°C, Turbo ≥70°C (default)
+- 🔇 **Quiet** – Silent ≤65°C, Turbo ≥80°C (prioritize silence)
+- 🚀 **Performance** – Silent ≤35°C, Turbo ≥50°C (max cooling)
 
 ### 🔋 Battery Health
 - Charge limiting (60% / 80% / 100%) to extend battery lifespan
