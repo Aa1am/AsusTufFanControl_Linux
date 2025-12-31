@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import AsusTufFanControl 1.0
 import ".."
 
 Item {
@@ -8,6 +9,11 @@ Item {
     
     property var backend
     property var theme
+    
+    // Auto Fan Curve Controller
+    FanCurveController {
+        id: curveController
+    }
     
     // Timer to refresh stats (syncs with Dashboard)
     Timer {
@@ -396,7 +402,17 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: backend.isManualModeActive ? backend.enableAutoMode() : backend.setFanSpeed(0) // Start in Silent mode
+                            onClicked: {
+                                if (backend.isManualModeActive) {
+                                    backend.enableAutoMode()
+                                } else {
+                                    // Disable Auto Curve when enabling Manual Mode
+                                    if (curveController.autoCurveEnabled) {
+                                        curveController.autoCurveEnabled = false
+                                    }
+                                    backend.setFanSpeed(0) // Start in Silent mode
+                                }
+                            }
                         }
                     }
                 }
@@ -727,6 +743,431 @@ Item {
                 }
             } // End control column
         } // End control panel Rectangle
+        
+        // ══════════════════════════════════════════════════════════════
+        // SECTION 4: AUTO FAN CURVE
+        // ══════════════════════════════════════════════════════════════
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: autoCurveColumn.implicitHeight + 56
+            color: Qt.rgba(theme.surface.r, theme.surface.g, theme.surface.b, 0.85)
+            radius: 16
+            border.width: 1
+            border.color: theme.isDark ? Qt.rgba(1,1,1,0.1) : Qt.rgba(0,0,0,0.1)
+            
+            ColumnLayout {
+                id: autoCurveColumn
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.margins: 28
+                spacing: 20
+                
+                // Auto Curve Toggle Row
+                RowLayout {
+                    Layout.fillWidth: true
+                    
+                    ColumnLayout {
+                        spacing: 2
+                        Text { 
+                            text: "AUTO FAN CURVE"
+                            color: "#27ae60"
+                            font.bold: true
+                            font.pixelSize: 15
+                            font.letterSpacing: 1.5
+                        }
+                        Text {
+                            text: "Automatically adjust fan mode based on temperature"
+                            color: theme.textTertiary
+                            font.pixelSize: 11
+                        }
+                    }
+                    
+                    Item { Layout.fillWidth: true }
+                    
+                    // Toggle Switch
+                    Rectangle {
+                        width: 56; height: 30
+                        radius: 15
+                        color: curveController.autoCurveEnabled ? "#27ae60" : (theme.isDark ? "#333" : "#ccc")
+                        border.width: 2
+                        border.color: curveController.autoCurveEnabled ? "#27ae60" : (theme.isDark ? "#444" : "#bbb")
+                        
+                        Behavior on color { ColorAnimation { duration: 200 } }
+                        
+                        Rectangle {
+                            x: curveController.autoCurveEnabled ? parent.width - width - 3 : 3
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 24; height: 24
+                            radius: 12
+                            color: "white"
+                            
+                            Rectangle {
+                                visible: curveController.autoCurveEnabled
+                                anchors.centerIn: parent
+                                width: 10; height: 10; radius: 5
+                                color: "#27ae60"
+                            }
+                            
+                            Behavior on x { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                        }
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                curveController.autoCurveEnabled = !curveController.autoCurveEnabled
+                                if (curveController.autoCurveEnabled && backend.isManualModeActive) {
+                                    backend.enableAutoMode()
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Controls (only when enabled)
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: thresholdCol.height + 30
+                    radius: 12
+                    color: theme.isDark ? Qt.rgba(0,0,0,0.3) : Qt.rgba(0,0,0,0.05)
+                    opacity: curveController.autoCurveEnabled ? 1.0 : 0.4
+                    
+                    Behavior on opacity { NumberAnimation { duration: 200 } }
+                    
+                    ColumnLayout {
+                        id: thresholdCol
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.margins: 15
+                        spacing: 16
+                        
+                        // Status Display
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 50
+                            radius: 10
+                            color: {
+                                if (!curveController.autoCurveEnabled) return Qt.rgba(0.5, 0.5, 0.5, 0.1)
+                                if (curveController.currentAutoMode === "Silent") return Qt.rgba(0.15, 0.68, 0.38, 0.2)
+                                if (curveController.currentAutoMode === "Balanced") return Qt.rgba(0.95, 0.61, 0.07, 0.2)
+                                return Qt.rgba(0.91, 0.30, 0.24, 0.2)
+                            }
+                            border.width: 1
+                            border.color: {
+                                if (!curveController.autoCurveEnabled) return "#666"
+                                if (curveController.currentAutoMode === "Silent") return "#27ae60"
+                                if (curveController.currentAutoMode === "Balanced") return "#f39c12"
+                                return "#e74c3c"
+                            }
+                            
+                            RowLayout {
+                                anchors.centerIn: parent
+                                spacing: 15
+                                
+                                Text {
+                                    text: "🌡️"
+                                    font.pixelSize: 20
+                                }
+                                
+                                Text {
+                                    text: "CPU: " + curveController.currentCpuTemp + "°C"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 16
+                                    font.bold: true
+                                }
+                                
+                                Rectangle {
+                                    width: 2; height: 20
+                                    color: theme.isDark ? "#555" : "#ccc"
+                                }
+                                
+                                Text {
+                                    text: curveController.autoCurveEnabled ? curveController.currentAutoMode : "Auto Curve Off"
+                                    color: {
+                                        if (!curveController.autoCurveEnabled) return "#888"
+                                        if (curveController.currentAutoMode === "Silent") return "#27ae60"
+                                        if (curveController.currentAutoMode === "Balanced") return "#f39c12"
+                                        return "#e74c3c"
+                                    }
+                                    font.pixelSize: 16
+                                    font.bold: true
+                                }
+                            }
+                        }
+                        
+                        // Silent Threshold
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Text {
+                                    text: "Silent Mode (below)"
+                                    color: "#27ae60"
+                                    font.pixelSize: 13
+                                    font.bold: true
+                                }
+                                Item { Layout.fillWidth: true }
+                                Text {
+                                    text: curveController.silentThreshold + "°C"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    font.bold: true
+                                }
+                            }
+                            
+                            // Silent Threshold Slider with MouseArea overlay
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                
+                                Slider {
+                                    id: silentSlider
+                                    anchors.fill: parent
+                                    from: 30; to: 75
+                                    value: curveController.silentThreshold
+                                    
+                                    background: Rectangle {
+                                        x: silentSlider.leftPadding
+                                        y: silentSlider.topPadding + silentSlider.availableHeight / 2 - height / 2
+                                        width: silentSlider.availableWidth
+                                        height: 8
+                                        radius: 4
+                                        color: theme.isDark ? "#333" : "#ddd"
+                                        
+                                        Rectangle {
+                                            width: silentSlider.visualPosition * parent.width
+                                            height: parent.height
+                                            radius: 4
+                                            color: "#27ae60"
+                                        }
+                                    }
+                                    
+                                    handle: Rectangle {
+                                        x: silentSlider.leftPadding + silentSlider.visualPosition * (silentSlider.availableWidth - width)
+                                        y: silentSlider.topPadding + silentSlider.availableHeight / 2 - height / 2
+                                        implicitWidth: 24; implicitHeight: 24
+                                        radius: 12
+                                        color: "white"
+                                        border.width: 3
+                                        border.color: "#27ae60"
+                                        
+                                        Rectangle {
+                                            anchors.centerIn: parent
+                                            width: 8; height: 8; radius: 4
+                                            color: "#27ae60"
+                                        }
+                                    }
+                                }
+                                
+                                MouseArea {
+                                    anchors.fill: parent
+                                    preventStealing: true
+                                    enabled: curveController.autoCurveEnabled
+                                    
+                                    function updateValue(xPos) {
+                                        var ratio = Math.max(0, Math.min(1, xPos / width))
+                                        silentSlider.value = Math.round(30 + ratio * 45) // 30 to 75
+                                    }
+                                    
+                                    onPressed: updateValue(mouseX)
+                                    onPositionChanged: updateValue(mouseX)
+                                    onReleased: curveController.silentThreshold = silentSlider.value
+                                }
+                            }
+                        }
+                        
+                        // Turbo Threshold
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                Text {
+                                    text: "Turbo Mode (above)"
+                                    color: "#e74c3c"
+                                    font.pixelSize: 13
+                                    font.bold: true
+                                }
+                                Item { Layout.fillWidth: true }
+                                Text {
+                                    text: curveController.balancedThreshold + "°C"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    font.bold: true
+                                }
+                            }
+                            
+                            // Turbo Threshold Slider with MouseArea overlay
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                
+                                Slider {
+                                    id: turboSlider
+                                    anchors.fill: parent
+                                    from: 45; to: 95
+                                    value: curveController.balancedThreshold
+                                    
+                                    background: Rectangle {
+                                        x: turboSlider.leftPadding
+                                        y: turboSlider.topPadding + turboSlider.availableHeight / 2 - height / 2
+                                        width: turboSlider.availableWidth
+                                        height: 8
+                                        radius: 4
+                                        color: theme.isDark ? "#333" : "#ddd"
+                                        
+                                        Rectangle {
+                                            width: turboSlider.visualPosition * parent.width
+                                            height: parent.height
+                                            radius: 4
+                                            color: "#e74c3c"
+                                        }
+                                    }
+                                    
+                                    handle: Rectangle {
+                                        x: turboSlider.leftPadding + turboSlider.visualPosition * (turboSlider.availableWidth - width)
+                                        y: turboSlider.topPadding + turboSlider.availableHeight / 2 - height / 2
+                                        implicitWidth: 24; implicitHeight: 24
+                                        radius: 12
+                                        color: "white"
+                                        border.width: 3
+                                        border.color: "#e74c3c"
+                                        
+                                        Rectangle {
+                                            anchors.centerIn: parent
+                                            width: 8; height: 8; radius: 4
+                                            color: "#e74c3c"
+                                        }
+                                    }
+                                }
+                                
+                                MouseArea {
+                                    anchors.fill: parent
+                                    preventStealing: true
+                                    enabled: curveController.autoCurveEnabled
+                                    
+                                    function updateValue(xPos) {
+                                        var ratio = Math.max(0, Math.min(1, xPos / width))
+                                        turboSlider.value = Math.round(45 + ratio * 50) // 45 to 95
+                                    }
+                                    
+                                    onPressed: updateValue(mouseX)
+                                    onPositionChanged: updateValue(mouseX)
+                                    onReleased: curveController.balancedThreshold = turboSlider.value
+                                }
+                            }
+                        }
+                        
+                        // Mode Legend
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 5
+                            spacing: 20
+                            
+                            Row {
+                                spacing: 6
+                                Rectangle { width: 12; height: 12; radius: 6; color: "#27ae60" }
+                                Text { text: "Silent < " + curveController.silentThreshold + "°C"; color: theme.textSecondary; font.pixelSize: 11 }
+                            }
+                            Row {
+                                spacing: 6
+                                Rectangle { width: 12; height: 12; radius: 6; color: "#f39c12" }
+                                Text { text: "Balanced " + curveController.silentThreshold + "-" + curveController.balancedThreshold + "°C"; color: theme.textSecondary; font.pixelSize: 11 }
+                            }
+                            Row {
+                                spacing: 6
+                                Rectangle { width: 12; height: 12; radius: 6; color: "#e74c3c" }
+                                Text { text: "Turbo > " + curveController.balancedThreshold + "°C"; color: theme.textSecondary; font.pixelSize: 11 }
+                            }
+                        }
+                        
+                        // Presets Row (All in one line, centered)
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 15
+                            Layout.alignment: Qt.AlignHCenter
+                            spacing: 12
+                            
+                            // Presets Label Box with Icon (Colored)
+                            Rectangle {
+                                width: 100; height: 36
+                                radius: 8
+                                color: "#3498db"
+                                
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 6
+                                    
+                                    Text {
+                                        text: "🎛️"
+                                        font.pixelSize: 14
+                                    }
+                                    
+                                    Text {
+                                        text: "Presets"
+                                        color: "white"
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                    }
+                                }
+                            }
+                            
+                            // Preset Buttons
+                            Repeater {
+                                model: [
+                                    { name: "Gaming", color: "#e74c3c" },
+                                    { name: "Balanced", color: "#f39c12" },
+                                    { name: "Quiet", color: "#27ae60" },
+                                    { name: "Performance", color: "#9b59b6" }
+                                ]
+                                
+                                Rectangle {
+                                    id: presetBtn
+                                    width: 95; height: 36
+                                    radius: 18
+                                    
+                                    property color btnColor: modelData.color
+                                    
+                                    color: presetMouse.containsMouse ? btnColor : (theme.isDark ? "#333" : "#e0e0e0")
+                                    border.width: presetMouse.containsMouse ? 0 : 2
+                                    border.color: btnColor
+                                    
+                                    scale: presetMouse.containsMouse ? 1.08 : 1.0
+                                    
+                                    Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData.name
+                                        color: presetMouse.containsMouse ? "white" : btnColor
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        
+                                        Behavior on color { ColorAnimation { duration: 150 } }
+                                    }
+                                    
+                                    MouseArea {
+                                        id: presetMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        enabled: curveController.autoCurveEnabled
+                                        onClicked: curveController.applyPreset(modelData.name)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
             } // End ColumnLayout
         } // End centerWrapper Item
     } // End Flickable
