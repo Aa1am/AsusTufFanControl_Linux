@@ -447,6 +447,14 @@ bool FanController::findWMIPaths()
 
 bool FanController::writeToSysfs(const QString &path, int value)
 {
+    // Security Fix: Whitelist allowed paths
+    // Only allow writing to ASUS WMI paths to prevent arbitrary file overwrite
+    if (!path.startsWith("/sys/devices/platform/asus") && 
+        !path.startsWith("/sys/class/hwmon")) {
+        qWarning() << "Security Block: Attempted write to unauthorized path:" << path;
+        return false;
+    }
+
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         // Silent failure is common if permission denied or file missing
