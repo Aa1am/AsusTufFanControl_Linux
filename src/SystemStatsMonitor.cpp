@@ -595,21 +595,27 @@ void SystemStatsMonitor::applyPendingChargeLimit() {
 
 void SystemStatsMonitor::updateAsusdChargeLimit(int limit) {
     // Patch /etc/asusd/asusd.ron
+    // Note: This file is owned by root, so writing requires polkit (running as root).
     QFile f("/etc/asusd/asusd.ron");
-    if (!f.open(QIODevice::ReadWrite | QIODevice::Text)) return;
+    if (!f.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        qWarning() << "Could not open asusd.ron for writing (permission denied?)";
+        return;
+    }
     
     QString content = f.readAll();
     
     // Pattern: charge_control_end_threshold: 90,
-    // Regex handles flexible spacing
-    QRegularExpression re("charge_control_end_threshold:\\s*\\d+,");
-    QRegularExpressionMatch match = re.match(content);
+    // Use QString::replace(QRegularExpression, ...) for GLOBAL search & replace 
+    // (QRegularExpression::match() only matches at position 0!)
+    QRegularExpression re("(charge_control_end_threshold:\\s*)\\d+(,)");
+    QString replacement = "\\1" + QString::number(limit) + "\\2";
+    QString newContent = content.replace(re, replacement);
     
-    if (match.hasMatch()) {
-        content.replace(match.capturedStart(), match.capturedLength(), "charge_control_end_threshold: " + QString::number(limit) + ",");
+    if (newContent != content) {
         f.seek(0);
-        f.write(content.toUtf8());
+        f.write(newContent.toUtf8());
         f.resize(f.pos());
+        qDebug() << "Updated asusd.ron charge limit to" << limit;
     }
     f.close();
 }

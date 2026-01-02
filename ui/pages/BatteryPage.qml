@@ -647,7 +647,7 @@ Item {
                                             x: index * (parent.width / 8) - 1
                                             width: 2
                                             height: parent.height
-                                            color: Qt.rgba(1,1,1, index === 0 ? 0 : 0.25)
+                                            color: Qt.rgba(1,1,1, (index === 0 || index === 8) ? 0 : 0.25)
                                         }
                                     }
                                 }
@@ -692,18 +692,20 @@ Item {
                             }
                         }
                         
-                        // Scale Labels
-                        RowLayout {
+                        // Scale Labels - absolute positioning to match tick marks
+                        Item {
                             Layout.fillWidth: true
+                            height: 16
+                            
                             Repeater {
                                 model: 9
                                 Text {
-                                    Layout.fillWidth: index > 0 && index < 8
+                                    // Position at same points as tick marks: index * (width / 8)
+                                    x: index * (parent.width / 8) - (index === 0 ? 0 : (index === 8 ? width : width / 2))
                                     text: (60 + index * 5) + "%"
                                     color: theme ? theme.textTertiary : "#666"
                                     font.pixelSize: 10
                                     font.bold: true
-                                    horizontalAlignment: index === 0 ? Text.AlignLeft : (index === 8 ? Text.AlignRight : Text.AlignHCenter)
                                 }
                             }
                         }
